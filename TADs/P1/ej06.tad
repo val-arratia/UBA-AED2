@@ -1,0 +1,185 @@
+EJERCICIO 6
+
+a) 
+alturaRosetree : rosetree(α) → nat
+alturaRosetree(a) ≡ if hijos(a) == <> then 
+						1
+					else 
+						1 + alturaMax(hijos(a), prim(hijos(a)))
+					fi
+
+
+alturaMax : secu(rosetree(α)) x rosetree(α) → nat
+alturaMax(s, p) ≡ if vacia?(s) then 
+		             alturaRosetree(p)
+			      else 
+					 if alturaRosetree(prim(s)) > alturaRosetree(p) then 
+					 	 alturaMax(fin(s), prim(s))
+					 else 
+					 	 alturaMax(fin(s), p)
+					 fi
+				  fi
+
+
+b) 
+#Hojas : rosetree(α) → nat
+#Hojas(a) ≡ if hijos(a) == <> then 
+				1
+			else 
+				sumarHojas(hijos(a))
+			fi
+
+
+
+sumarHojas : secu(rosetree(α)) → nat
+sumarHojas(s) ≡ if vacia?(s) then 
+					0
+				else 
+					#Hojas(prim(s)) + sumarHojas(fin(s))
+				fi
+
+
+c)
+
+podar : rosetree(α) → rosetree(α)
+podar(a) ≡ rose(raiz(a), podarAux(hijos(a)))
+
+podarAux : secu(rosetree(α)) → secu(rosetree(α))
+podarAux(s) ≡ if vacia?(s) then
+				<>
+			  else
+			  	podar(prim(s)) ∙ podarAux(fin(s))
+			  fi
+
+
+d) 
+ramasAcotadas : rosetree(α) x nat → secu(secu(α))
+ramasAcotadas(a, n) ≡ ramasAcotadasAux(ramas(a), n)
+
+ramasAcotadasAux : secu(secu(n)) x nat → secu(secu(n))
+ramasAcotadasAux(s, n) ≡ if vacia?(s) then
+							s
+						 else
+							if long(prim(s)) ≤ n then
+								prim(s) ∙ ramasAcotadasAux(fin(s),n)
+							else
+								ramasAcotadasAux(fin(s),n)
+							fi
+						 fi
+
+ramas : rosetree(α) → secu(secu(α))
+ramas(a) ≡ if nil?(a) then
+			   <>
+		   else
+			   agregarATodos(raiz(a), ramasAux(hijos(a)))
+		   fi
+
+
+ramasAux : secu(rosetree(α)) → secu(secu(α))
+ramasAux(h) ≡ if vacia?(h) then 
+				<>
+			else
+				ramas(prim(h)) ++ ramasAux(fin(h))
+			fi
+
+
+No me salió sin armar todas las ramas y despues filtrar. Dejo mi intento igual (está mal)
+//  ramasAcotadas : rosetree(α) x nat → secu(secu(α))
+//	ramasAcotadas(a, n) ≡ if n > 0 then
+//						  	if nil?(hijos(a)) then
+//						  		agregarATodos(raiz(a), <> ∙ <>)
+//						  	else
+//						  		bajarUnNivel(hijos(a), n)
+//						  	fi
+//						  else
+//						  	<>
+//						  fi
+//
+//
+//	bajarUnNivel : secu(rosetree(α)) x nat → secu(secu(α))
+//	bajarUnNivel(h, n) ≡ if vacia?(h) then     	
+//							<>
+//					 	 else
+//							agregarATodos(raiz(prim(h)), ramasAcotadas(prim(h), n-1)) & bajarUnNivel(fin(h), n)
+//						 fi
+//
+//
+//
+//	agregarATodos : α x secu(secu(α)) → secu(secu(α))
+//	agregarATodos(e, s) ≡ if vacia?(s) then
+//							s
+//						  else
+//							e ∙ prim(s) ∙ agregarATodos(fin(s))
+//						  fi 
+
+
+e)
+
+nivel : rosetree(α) x nat → secu(α)
+nivel(a, n) ≡ if nil?(a) then
+				<>
+			  else 
+			  	if n =obs 0 then
+					raiz(a) ∙ <>
+	    		else 
+			  		bajarUnNivel(hijos(a),n)
+			  	fi
+			  fi
+
+bajarUnNivel : secu(rosetree(α)) x nat → secu(α)
+bajarUnNivel(h,n) ≡ if vacia?(h) then 
+						<>
+				    else 
+				  		nivel(prim(h), n-1) & bajarUnNivel(fin(h), n)  
+				  	fi
+
+
+f)
+
+ramasMasLargasConRepetidos : rosetree(α) → secu(secu(α))
+ramasMasLargasConRepetidos(a) ≡ conLongitud(conRepetidos(ramas(a)), maxLongitud(conRepetidos(ramas(a))))
+
+maxLongitud : secu(secu(α)) s → nat   {¬vacia?(s)}
+maxLongitud(s) ≡ if vacia?(fin(s)) then
+					long(prim(s))
+				 else
+				 	if long(prim(s)) > maxLongitud(fin(s)) then
+				 		long(prim(s))
+				 	else
+				 		maxLongitud(fin(s))
+				 	fi
+				 fi
+
+
+conLongitud : secu(secu(α)) x nat → secu(secu(α))
+conLongitud(s,n) ≡ if vacia?(s) then 
+						s
+				   else
+					 	if long(prim(s)) =obs n then
+							prim(s) ∙ conLongitud(fin(s), n)
+					 	else
+					 		conLongitud(fin(s), n)
+					 	fi
+				   fi
+
+conRepetidos : secu(secu(α)) → secu(secu(α))
+conRepetidos(s) ≡ if vacia?(s) then
+					s
+				  else
+					if tieneRepetidos(prim(s)) then
+						prim(s) ∙ conRepetidos(fin(s))
+					else
+						conRepetidos(fin(s))
+					fi
+				  fi
+
+tieneRepetidos : secu(α) → bool
+tieneRepetidos(s) ≡ if vacia?(s) then
+						false
+					else
+						if esta?(prim(s), fin(s)) then
+							true
+						else
+							tieneRepetidos(fin(s))
+						fi
+					fi

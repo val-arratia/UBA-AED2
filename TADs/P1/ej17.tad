@@ -1,0 +1,154 @@
+//Asumo que mientras las barreras están levantadas no llegan vehiculos
+
+//Flujo del peaje:
+//  1) llegan los autos
+//  2) miras si hay que levantar
+//  3) levantas o cobras al primero en todas
+
+//  Solo se puede observar el peaje al finalizar 3) o antes de 1)
+
+
+TAD PDZ    // precios, set(cabina), limite vehiculos 
+
+    géneros: PDZ
+
+    exporta: PDZ, observadores básicos, generadores, levantar?, levantarBarreras, dejarPasar, maxPasadas
+    usa: bool, nat, cab
+
+    generadores:
+        PDZ : dicc(vehiculo, nat) x conju(cabina) c x nat l → PDZ         {#c, l > 0}    //cant cabinas x limiteVehiculos
+        llegadaVehiculos : PDZ → PDZ
+    
+    observadores básicos:
+    	listaDePrecios : PDZ → dicc(vehiculo, nat)
+    	limiteLevantar : PDZ → nat
+        cabinas : PDZ → conju(cabina)
+
+    otras operaciones:
+    	dameCabina : PDZ → cabina                          {¬(cantCabinas(p) = 0)}
+    	borrarCabina : PDZ → PDZ
+    	agregarCabina : PDZ x cabina → PDZ
+        levantar? : PDZ → bool
+        levantarBarreras : PDZ p → PDZ                             {levantar?(p)}
+        maxPasadas : vehiculo x PDZ → cabina
+		maxPasadasAux : vehiculo x PDZ x cabina → nat
+
+    axiomas:
+
+    	dameCabina(p) ≡ dameUno(cabinas(p))
+
+    	borrarCabina(p) ≡ PDZ(listaDePrecios(p), sinUno(cabinas(p)), limiteLevantar(p))
+
+    	agregarCabina(p, c) ≡ PDZ(listaDePrecios(p), Ag(c, cabinas(p)), limiteLevantar(p))
+
+    	levantar?(p) ≡  if cantCabinas(p) =obs 0 then
+				    		false
+				        else
+				    		if long(colaEspera(dameCabina(p))) ≥ limiteLevantar(p) then
+				    			true
+				    		else
+				    			levantar?(borrarCabina(p))
+				    		fi
+				    	fi
+
+
+		levantarBarreras(p) ≡ if cantCabinas(p) =obs 0 then
+				    		p
+				        else 
+				        	agregarCabina(levantarBarreraCab(dameCabina(p)), levantarBarreras(borrarCabina(p))
+				        fi
+		
+		maxPasadas(v, p) ≡  maxPasadasAux(v, borrarCabina(p), dameCabina(p))
+
+		maxPasadasAux(v, p, c) ≡ if cantCabinas =obs 0 then 
+									c
+								 else
+								 	if cantidadQuePaso(v, dameCabina(p)) > cantidadQuePaso(v,c) then
+								 		maxPasadasAux(v, borrarCabina(p), dameCabina(p))
+								 	else
+								 		maxPasadasAux(v, borrarCabina(p), c)
+								 	fi
+								 fi
+
+		todasMismoHistorial(llegadaVehiculos(p)) ≡ if ∅?cabinas(p) then
+														dameUno 
+
+
+
+
+
+Fin TAD
+
+
+TAD Cabina                  //cola de espera, cola que pasó, facturación
+
+    géneros: cab
+
+    exporta: cabina, observadores básicos, generadores
+
+    usa: bool, nat
+
+    generadores:
+    	crearCabina : secu(vehiculo) x secu(vehiculo) x nat → cabina
+
+    observadores básicos:
+        colaEspera : cab → secu(vehiculo)
+        historial :  cab → secu(vehiculo)
+        facturacion : cab → nat
+
+    otras operaciones:
+        llegaVehiculo : vehiculo x cab → cab
+        cobrar : cab x nat → cab
+        avanzar : cab c → cab                               {¬∅?(colaEspera(c))}
+        cantidadQuePaso : vehiculo → nat
+        levantarBarreraCab : cab → cab
+
+    axiomas:
+
+    	colaEspera(crearCabina(c, h, f)) ≡ c
+    	
+    	historial(crearCabina(c, h, f)) ≡ h
+        
+    	facturacion(crearCabina(c, h, f)) ≡ f
+
+        colaEspera(llegaVehiculo(v, c)) ≡ v ∙ colaEspera(c) 
+
+        facturacion(cobrar(c, precio)) ≡ facturacion(c) + precio
+
+        facturacion(cobrar(c, precio)) ≡ historial(avanzar(c)) ∧ colaEspera(avanzar(c))
+
+        colaEspera(avanzar(c)) ≡ fin(colaEspera(c))
+
+        historial(avanzar(c)) ≡ prim(c) ∘ historial(c)	
+
+        cantidadQuePaso(v, c) ≡ cantidadQuePasoAux(v, c, 0)
+
+        cantidadQuePasoAux(v, c, a) ≡   if ∅?(historial(c)) then
+								        	a
+								        else
+								        	if v =obs prim(historial(c)) then
+								        		cantidadQuePasoAux(v, fin(c), a+1)
+								        	else
+								        		cantidadQuePasoAux(v, fin(c), a)
+								        	fi
+								        fi
+
+		levantarBarreraCab(c) ≡ levantarBarreraCabAux(c, long(colaEspera(c))/2)
+
+		levantarBarreraCabAux(c, pasos) ≡   if pasos =obs 0 then
+												c
+											else
+												levantarBarreraCabAux(avanzar(c), pasos-1)
+											fi
+
+
+Fin TAD
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,119 @@
+//COMENTARIOS: 
+//Las funciones para saber la cabina que más facturó no hacian falta pero ya las hice asi que no las quier borrar jajajaja
+//Para la cola quizas hubiera sido mejor usar una cola(TAD) en vez de una secuencia
+//La igualdad observacional son muchos para todos para decir que en todas las instancias los observadores devuelven cosas observacionalmente iguales
+//En un lugar uso división entera y no está axiomatizado en ningún lado pero hagamos de cuenta que si
+
+
+TAD idCabina es nat
+TAD numCabinas es nat
+TAD limite es nat
+TAD vehiculo es string
+TAD PDZ
+
+    géneros: PDZ
+
+    exporta: PDZ, observadores básicos, generadores, masVehiculos
+
+    usa: bool, nat, idCabina, numCabinas, limite, vehiculo
+
+    generadores:
+        nuevoPeaje: numCabinas × limite × dicc(vehiculo, nat) → PDZ
+        llegada: vehiculo v × idCabina c × PDZ p → PDZ                         {vehiculoValido(v, p), idValido(c, p)}
+        cobrar: idCabina c × PDZ p → PDZ                                       {¬∅?(cola(c, p)), idValido(c, p)}
+
+    observadores básicos:                                
+        limitePeaje: PDZ → nat
+        #cabinas: PDZ → nat
+        facturado: idCabina c × PDZ p → nat                                    {idValido(c, p)}            
+        cola: idCabina c × PDZ p → secu(vehiculo)                              {idValido(c, p)} 
+        #vehiculo: idCabina c × vehiculo v × PDZ p → nat                       {vehiculoValido(v, p), idValido(c, p)}
+        listaPrecios: PDZ → dicc(vehiculo, nat)
+
+    otras operaciones:
+    	vehiculoValido: vehiculo × PDZ → bool
+    	idValido: idCabina × PDZ → bool 
+    	dejarPasar: secu(vehiculo) × nat → secu(vehiculo)
+        masVehiculos: vehiculo v × PDZ p → idCabina                            {vehiculoValido(v, p)}
+        masVehiculosAux: idCabina c × vehiculo v × PDZ p → idCabina            {vehiculoValido(v, p), idValido(c, p)}
+        laQueMasFacturo: PDZ → idCabina
+        laQueMasFacturoAux: PDZ p × idCabina c → idCabina                      {idValido(c, p)}
+
+    axiomas:
+
+    	vehiculoValido(v, p) ≡ def?(v, listaPrecios(p))
+    	idValido(c, p) ≡ c < #cabinas(p)
+
+        limitePeaje(nuevoPeaje(n, l, lp)) ≡ l
+        #cabinas(nuevoPeaje(n, l, lp)) ≡ n
+        facturado(c, nuevoPeaje(n, l, lp)) ≡ 0
+        cola(c, nuevoPeaje(n, l, lp)) ≡ ∅
+        #vehiculo(c, v, nuevoPeaje(n, l, lp)) ≡ 0
+        listaPrecios(nuevoPeaje(n, l, lp)) ≡ lp
+
+
+        limitePeaje(llegada(v, c, p)) ≡ limite(p)
+        #cabinas(llegada(v, c, p)) ≡ #cabinas(p)
+        facturado(c1, llegada(v, c2, p)) ≡ facturado(c1, p)
+        cola(c1, llegada(v, c2, p)) ≡ if long(cola(c2,p)) =obs limitePeaje(p)-1 then // levantar barreras
+        								if c1 =obs c2 then 
+											dejarPasar(v ∘ cola(c1, p), limitePeaje(p)/2)
+										else
+											dejarPasar(cola(c2, p), long(cola(c2, p))/2)
+										fi
+        							  else                                        // agregar el nuevo a la cola
+        							  	if c1 =obs c2 then
+        							  		v ∘ cola(c2, p)
+        							  	else
+        							  		cola(c1, p)
+        							  	fi
+        							  fi
+        #vehiculo(c1, v1, llegada(v2, c2, p)) ≡ if c1 =obs c2 ∧ v1 =obs v2 then
+        											#vehiculo(c1,v1,p) + 1
+        										else
+        											#vehiculo(c1, v1, p)
+        										fi
+        listaPrecios(llegada(v, c, p)) ≡ p
+
+        dejarPasar(s, n) ≡ if ¬(n =obs 0) then dejarPasar(fin(s), n-1) else s fi
+
+
+        limitePeaje(cobrar(c, p)) ≡ limitePeaje(p)
+        #cabinas(cobrar(c, p)) ≡ #cabinas(p)
+        facturado(c1, cobrar(c2, p)) ≡ if c1 =obs c2 then
+        									facturado(c1, p) + obtener(prim(cola(c2, p)), listaPrecios(p))
+        							   else
+        							   		facturado(c1, p)
+        							   fi
+    	cola(c1, cobrar(c2, p)) ≡ if c1 =obs c2 then
+    								fin(cola(c2, p))
+    						      else
+    						      	cola(c1, p)
+    						      fi
+    	#vehiculo(c1, v1, cobrar(c2, p)) ≡ #vehiculo(c1, v1, p)
+    	listaPrecios(cobrar(c, p)) ≡ listaPrecios(p)
+
+
+        masVehiculos(v, p) ≡ masVehiculosAux(v, p, numCabinas(p)-1)
+        masVehiculosAux(v, p, n) ≡ if n =obs 0 then
+                                    0
+                                   else
+                                    if #vehiculo(n, v, p) > #vehiculo(masVehiculosAux(v, p, n-1), v, p) then
+                                        n
+                                    else
+                                        masVehiculosAux(v, p, n-1)
+                                   fi
+
+
+        laQueMasFacturo(p) ≡ laQueMasFacturoAux(p, numCabinas(p)-1)
+        laQueMasFacturoAux(p, n) ≡ if n =obs 0 then
+                                    0
+                                   else
+                                    if facturado(n, p) > facturado(laQueMasFacturoAux(p, n-1), p) then
+                                        n
+                                    else
+                                        laQueMasFacturo(p, n-1)
+                                    fi
+                                   fi
+
+Fin TAD

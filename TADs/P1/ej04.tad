@@ -1,0 +1,56 @@
+NTN : conj(secu(α)) x secu(α) → conj(secu(α))
+NTN(c,s) ≡ if ∅?(c) then
+				∅
+		   else
+				if esSubsecu(dameUno(c), s) ∧ esLaMasLarga(dameUno(c), sinUno(c), s) then
+					Ag(dameUno(c), NTN(sinUno(c), s))
+			    else
+					NTN(sinUno(c), s)
+			    fi
+		   fi
+
+
+
+esLaMasLarga : secu(α) x conj(secu(α)) x secu(α) → bool                   {¬ (e ∈ c)}
+esLaMasLarga(e, c, s) ≡	if ∅?(c) then
+							true
+						else
+							if esPrefijo(e, dameUno(c)) ∧ esSubsecu(dameUno(c), s) then
+								false
+							else
+								esLaMasLarga(e, sinUno(c), s)
+							fi
+						fi	
+
+
+esSubsecu : secu(α) x secu(α)b → bool                        {¬∅(b)}
+esSubsecu(a, b) ≡ if ∅?(a) then
+					true
+				 else 
+				 	if ∅?(b) then
+				 		false
+				 	else
+				 		if prim(a) =obs prim(b) then
+				 			esSubsecu(fin(a), fin(b))
+				 		else
+				 			esSubsecu(fin(a), b)
+				 		fi
+				 	fi
+				 fi
+
+
+esPrefijo : secu(α) x secu(α)b → bool   
+esPrefijo(a, b) ≡ if ∅?(a) then
+					true
+				  else 
+				  	if ∅?(b) then
+				  		false
+				  	else
+				  		if prim(a) =obs prim(b) then
+				  			esPrefijo(fin(a), fin(b))
+				  		else
+				  			false
+				  		fi
+				  	fi
+				  fi
+

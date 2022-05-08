@@ -1,0 +1,58 @@
+TAD ARBOL_TERNARIO_EXTENDIDO(α)
+
+    extiende: ARBOL_TERNARIO_(α)
+
+    otras operaciones:
+        nivelNormal? : at(α) x nat → bool
+        acotado? : at(α) x nat k → bool               {k ≥ 1}
+
+    axiomas:
+        nivelNormal?(a, k) ≡ if nil?(a) then
+					        	true
+					         else
+					        	if k =obs 0 then
+        							¬nil?(izq(a)) ∧ ¬nil?(med(a)) ∧ ¬nil?(der(a))
+        					 	else
+        					 		nivelNormal?(izq(a),k-1) ∧ nivelNormal?(med(a),k-1) ∧ nivelNormal?(der(a),k-1)
+        						fi
+					         fi
+
+		acotado?(a, k) ≡ acotado?Aux(a, k, cantNiveles(a))
+
+		acotado?Aux(a, k, n) ≡ if n =obs 0 then 
+								true 
+							   else 
+									if hijosDelNivel(a, n) < k then
+										acotado?Aux(a, k, n-1)
+							   		else
+							   			false
+							   		fi 
+							   fi
+
+		hijosDelNivel(a, n) ≡ if nil?(a) then
+								0
+							  else
+								if n =obs 0 then
+									β(nil?(izq(a))) + β(nil?(med(a))) + β(nil?(der(a)))
+							  	else
+							  		hijosDelNivel(izq(a), n-1) + hijosDelNivel(med(a), n-1) + hijosDelNivel(der(a), n-1)
+							  	fi
+							  fi
+
+		cantNiveles(a) ≡ if nil?(a) then    
+							0
+						 else
+						 	1 + max(cantNiveles(izq(a), cantNiveles(med(a)), cantNiveles(der(a))))
+						 fi
+
+Fin TAD
+
+
+
+
+
+
+
+
+
+

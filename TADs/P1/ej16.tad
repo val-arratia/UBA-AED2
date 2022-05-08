@@ -1,0 +1,81 @@
+// COSAS QUE ASUMÍ:
+// 1) Cuando hablo de posicion son siempre validas para un tablero de 64x64
+// 2) cambiarDireccion está definido en tad direccion recibe una direccion 
+// 	  y un nat entre 1 y 3 inclusive y rota la direccion 90 grados en sentido horario
+//    tantas veces como el nat indique
+// 3) a siguiente no le paso un tablero porque no hay necesidad, 
+//    pero es claramente un tablero de 64x64, no le encuentro explicación a ese parametro
+
+
+TAD juego
+
+    géneros: juego
+
+    exporta: juego, observadores básicos, generadores
+
+    usa: bool, nat, tablero, posicion, direccion
+
+    generadores:
+    	nuevoJuego: dicc(nat j, <posicion, direccion, 0> )g → juego        {#(claves(g)) =obs 64, j < 64,  (∀j₁,j₂:nat)(0 ≤ j₁ < j₂ < 64 ⇒ ¬(π₁(j₁) =obs π₂(j₂)))} // 64 jugadores numerados del 0 al 63, no hay posiciones repetidas
+        jugar: juego g × nat j × nat b → juego                             {juega?(j, g), 0 ≤ b ≤ 4 } //0 mover, 1,2,3 cambio de dirección 
+
+    observadores básicos:
+        juega?:     juego   × nat j → bool                                 {j < 64}
+        posicionJ:  juego g × nat j → posicion                             {juega?(j, g)}
+        direccionJ: juego g × nat j → direccion                            {juega?(j, g)}
+        puntos:     juego g × nat j → nat                                  {juega?(j, g)}
+
+    otras operaciones:
+        puntosComer: posicion × juego → nat   
+        puntosComerAux: posicion × juego × nat → nat                             
+
+    axiomas:
+    	juega?(nuevoJuego(g), j)     ≡ true
+    	posicionJ(nuevoJuego(g), j)  ≡ π₁(obtener(j, g)
+    	direccionJ(nuevoJuego(g), j) ≡ π₂(obtener(j, g)
+    	puntos(nuevoJuego(g), j)     ≡ 0
+
+
+		juega?(j2, jugar(g, j1, b)) ≡ if ¬(b =obs 0) then 
+										juega?(j2, g) // seguia jugando?
+								      else
+										if siguiente(posicionJ(g, j1), direccionJ(g, j1)) =obs posicionJ(g, j2) then
+											false // lo comio
+										else
+											juega?(j2, g) // no lo comio, seguia vivo antes?
+										fi
+									  fi	
+    	posicionJ(jugar(g, j1, b), j2) ≡ if j1 =obs j2 ∧ b =obs 0 then
+								    		siguiente(posicionJ(g, j1), direccionJ(g, j1))
+								    	 else
+								    		posicionJ(g, j2)
+								    	 fi
+		direccionJ(jugar(g, j1, b), j2) ≡ if j1 =obs j2 ∧ ¬(b =obs 0) then
+								    		cambiarDireccion(direccionJ(g, j1), b)
+								    	  else
+								    		direccionJ(g, j2)
+								    	  fi
+		puntos(jugar(g, j1, b), j2) ≡ if ¬(j1 =obs j2) ∨ ¬(b =obs 0) then
+										puntos(g, j2)
+									  else
+									  	puntos(g, j1) + puntosComer(siguiente(posicionJ(g, j1), direccionJ(g, j1)), g)
+									  fi
+
+
+		puntosComer(p, g) ≡ puntosComerAux(p, g, 0)// revisa la posicion, se fija si hay alguien y te dice sus puntos
+		puntosComerAux(p, g, j) ≡ if j ≥ 64 then 
+									0
+								  else
+									if juega?(g, j) then
+										if posicionJ(g, j) =obs p then 
+											1 + puntos(g, j)
+										else 
+											puntosComerAux(p, g, j+1)
+										fi
+									else
+										puntosComerAux(p, g, j+1)
+									fi
+								  fi
+
+
+Fin TAD

@@ -1,0 +1,21 @@
+EJERCICIO 13 a
+
+a)
+interesa
+	filas
+
+	trayecto          	  lista de todas las paradas representadas con numeros
+	gente a bajar         secuencia con la cantidad de personas a bajar en cada parada
+
+	parada anterior
+	parada a la que va    
+
+
+#Asientos : colectivo → nat 
+
+trayecto : colectivo → secu(nat)
+
+anterior : colectivo → nat
+
+proxima : colectivo → nat
+	

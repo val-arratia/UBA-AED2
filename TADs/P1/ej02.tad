@@ -1,0 +1,85 @@
+EJERCICIO 2
+
+			8
+		  /   \
+		 3    10
+		/ \     \
+	   1   6     14
+	      / \    /
+	     4   7	13
+
+
+
+a) esHoja(a) ≡ if nil?(a) then false else (nil?(izq(a)) ∧ nil?(der(a)))
+
+esHojaV2(a) ≡ if nil?(a) 
+				 then false
+				 else (if (tamaño(izq(a)) == 0 ∧ tamaño(der(a)) == 0 )
+				 		   then true 
+				 		   else false
+				 	   fi)
+		      fi
+
+b) #Hojas(a) ≡ if nil?(a) 
+				  then 0 
+				  else (if esHoja(a) 
+				  		   then 1 
+				  		   else #Hojas(izq(a)) + #Hoja(der(b)) 
+				  		fi) 
+			   fi
+
+c) DegeneradoAIzquierda(a) ≡ if nil?(a)
+								then false
+								else ( if esHoja(a)
+										  then true
+										  else (DegeneradoAIzquierda(izq(a)) ∧ nil?(der(a)) )
+									   fi )
+							 fi
+
+
+d)
+
+zigZag : rosetree(α) → bool
+zigZag(a) ≡ if nil?(a) then 
+				true
+			else zigZagArrancaIzq(a) ∨ zigZagArrancaDer(a)
+			fi
+
+
+zigZagArrancaIzq : rosetree(α) → bool
+zigZagArrancaIzq(a) ≡ esHoja(a)                                      
+					∨ ( nil?(der(a))      ∧ ¬nil?(izq(a))           // Miro primer piso
+					∧  ¬nil?(der(izq(a))) ∧ nil?(izq(izq(a)))		 // Miro segundo piso
+					∧   zigZagArrancaIzq( der(izq(a)) )      )	     // Bajo dos pisos
+
+
+zigZagArrancaDer : rosetree(α) → bool
+zigZagArrancaDer(a) ≡ esHoja(a) 
+					∨ ( nil?(izq(a))      ∧ ¬nil?(der(a)) 
+					∧  ¬nil?(izq(der(a))) ∧ nil?(der(der(a)))
+					∧   zigZagArrancaDer( izq(der(a)) )      )
+
+
+e)
+
+ultimoNivelCompleto : rosetree(α) → nat
+ultimoNivelCompleto(a) ≡ if nil?(der(a)) ∨ nil?(izq(a)) then
+							0
+						 else
+							1 + min(ultimoNivelCompleto(der(a)), ultimoNivelCompleto(izq(a)))
+						 fi
+
+
+f)
+
+espejo : rosetree(α) → rosetree(α)
+espejo(a) ≡ if nil?(a) then a else bin(espejo(der(a)), raiz(a), espejo(izq(a))) fi
+
+
+g) 
+
+esSimetrico? : rosetree(α) → rosetree(α)
+esSimetrico?(a) ≡ a =obs espejo(a)
+
+
+

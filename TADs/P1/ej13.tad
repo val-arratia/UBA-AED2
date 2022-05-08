@@ -1,0 +1,45 @@
+TAD colectivo
+
+    géneros colectivo
+    exporta colectivo, generadores, observadores básicos
+
+    usa nat
+    
+    generadores
+        arrancar: secu(parada) ps × nat → colectivo                    {long(ps) > 0, ¬(0 ∈ ps)}
+        avanzar: colectivo → colectivo
+        subeUnPasajero: colectivo c × nat p → colectivo                {p ∈ paradasRestantes(c)}
+    
+    observadores básicos
+        paradaActual: colectivo → nat
+        #asientos: colectivo → nat
+        #pasajeros: colectivo → nat
+        paradasRestantes: colectivo → secu(nat)
+        #bajan: colectivo × nat → nat
+    
+    otras operaciones
+        asientosLibres: colectivo → nat
+    
+    axiomas
+
+        paradaActual(arrancar(ps, a)) ≡ prim(ps)
+        #asientos(arrancar(ps, a)) ≡ a*2
+        #pasajeros(arrancar(ps, a)) ≡ 0
+        paradasRestantes(arrancar(ps, a)) ≡ ps
+        #bajan(arrancar(ps, a), p) ≡ 0
+
+        paradaActual(avanzar(c)) ≡ if ∅?(paradasRestantes(c)) then 0 else prim(paradasRestantes(c)) fi   //decisión de diseño, estar en la parada 0 es estar estacionado
+        #asientos(avanzar(c)) ≡ #asientos(c)
+        #pasajeros(avanzar(c)) ≡ #pasajeros(c) - #bajan(paradaActual(c))
+        paradasRestantes(avanzar(c)) ≡ if ∅?(paradasRestantes(c)) then paradasRestantes(c) else fin(paradasRestantes(c))
+        #bajan(avanzar(c), p) ≡ #bajan(c, p) 
+
+        paradaActual(subeUnPasajero(c, p)) ≡ paradaActual(c)
+        #asientos(subeUnPasajero(c, p)) ≡ #asientos(c)
+        #pasajeros(subeUnPasajero(c, p)) ≡ #pasajeros(c) + 1
+        paradasRestantes(subeUnPasajero(c, p)) ≡ paradasRestantes(c)
+        #bajan(subeUnPasajero(c,p1), p2) ≡ if p1 =obs p2 then #bajan(c, p2) + 1 else #bajan(c, p2) fi
+
+        asientosLibres(c) ≡ if #asientos(c) - #pasajeros(c) > 0 then #asientos(c) - #pasajeros(c) else 0 fi
+
+FIN TAD

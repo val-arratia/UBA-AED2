@@ -1,0 +1,81 @@
+TAD juego
+
+    géneros: juego
+
+    exporta: juego, observadores básicos, generadores, jugar
+
+    usa: bool, nat, tablero
+
+    generadores:
+        nuevoJuego: → juego
+        mover: nat p × juego j × nat c → juego  {p =obs 0 ∨ p =obs 1, c < meta(tableroJuego(j))}
+
+    observadores básicos:
+        tableroJuego: juego → tablero
+        turno: juego → nat
+        posicion: nat p × juego → nat           {p =obs 0 ∨ p =obs 1}
+        dados: nat p → secu(nat)                {p =obs 0 ∨ p =obs 1}
+        
+    otras operaciones:
+        jugar: nat d × tablero → tablero        {1 ≤ d ≤ 6}
+
+    axiomas:
+        turno(nuevoJuego()) ≡ 0
+        posicion(p, nuevoJuego()) ≡ 0
+        dados(p, nuevoJuego()) ≡ ∅
+
+        tableroJuego(mover(p, j, c)) ≡ tableroJuego(j)
+        turno(mover(p2, j, d)) ≡ turno(j)
+        posicion(p1, mover(p2, j, d)) ≡ if ¬(p1 =obs p2) then
+        									posicion(p1, j)
+        								else
+        									if posicion(p2, j) + d ≥ meta(tableroJuego(j)) then
+        										meta(tableroJuego(j))
+        									else
+        										mandarA(tableroJuego(j), posicion(p2, j) + d)
+        									fi
+        								fi
+        dados(p1, mover(p2, j, d)) ≡ dados(p1, j)
+
+        tableroJuego(jugar(d, j)) ≡ tableroJuego(j)
+        turno(jugar(d, j) ≡ if turno(j) =obs 0 then 1 else 0 fi
+        jugar(d, j) ≡ if turno(j) =obs 0 then
+        				mover(0, j, d)
+        			  else 
+        			  	mover(1, j, d)
+        			  fi
+        dados(p1, jugar(d, j)) ≡ if ¬(turno(jugar(d, j)) =obs p1) then
+        							dados(p1, j)
+        						 else
+        						 	d∙dados(p1, j)
+        						 fi
+
+Fin TAD
+
+
+TAD tablero
+
+    géneros: tab
+
+    exporta: tab, observadores básicos, generadores
+
+    usa: bool, nat
+
+    igualdad observacional:
+    	(∀t₁, t₂ : tab)(∀c : nat)(t₁ =obs t₂ 
+    		⇔ ( meta(t₁) =obs meta(t₂)
+    		 ∧L (c < meta(t₁) ⇒ mandarA(t₁, c) =obs mandarA(t₂, c)))
+
+    generadores:
+        nuevoTablero: → tab       // agregar una forma de configurar desde afuera el tablero
+
+    observadores básicos:
+        meta : tab → nat
+        mandarA : tab t × nat c → nat                       {0 < c < meta(t)}        
+
+    axiomas:
+    	meta(nuevoTablero()) > 0 ≡ true
+    	mandarA(nuevoTablero(), c) ≤ meta(nuevoTablero()) ≡ true
+
+Fin TAD
+

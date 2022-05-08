@@ -1,0 +1,65 @@
+PARTE 1
+
+1) Si
+2) Si
+3) No es necesario porque no hay famosos en crearIns().
+
+
+
+PARTE 2
+
+Es correcto porque se puede definir desde los demás generadores.
+
+reconciliar : famoso f × famoso f' × ins i → ins    {{f, f'} ∈ famosos(i) ∧ f≠f' ∧ f ∈ enemigos(f', i)}
+famososos(reconciliar(f1, f2, i)) ≡ famosos(i)
+enemigos(f0, reconciliar(f1, f2, i)) ≡  if f0 =obs f1 then 
+											enemigos(f1, i) - {f2}
+										else 
+											if f0 =obs f2 then
+												enemigos(f2, i) - {f1}
+											else
+												enemigos(f0, i)
+											fi
+										fi
+
+
+PARTE 3
+
+1) Creo que no, pero no estoy del todo seguro. El problema con lo que pensé es que
+no hay forma de registrar las peleas de los demás en la recursión. De ser posible
+sería muy enrevesado.
+
+peleasEntre(f1, f2, pelear(f1, f2, i)) ≡ 
+	if i =obs nuevoFamoso(f1, i) ∨ i =obs nuevoFamoso(f2, i) then 
+		0
+	else
+		1 + peleasEntre(f1, f2, i)
+	fi 
+
+2) Exactamente lo mismo que en 1).
+
+
+3) Cómo axiomatizaste másPeleadores? Si lo pusieras como un observador si.
+
+4) Si.
+
+5) Si.
+
+6) a. masPeleadores(p1) ≡ {a}
+	  masPeleadores(p2) ≡ {a}
+
+   b. masPeleadores(pelear(d, b, p1)) ≡ {a, b}
+	  masPeleadores(pelear(d, b, p2)) ≡ {a, b, d}
+
+   c. No se rompe la congruencia... Se pueden distinguir en ambos casos con los enemigos de e.
+
+   d. No hace falta bro
+
+
+
+   enemigos
+   famosos
+   cantidadDePeleas
+   
+   reconciliar(a,b,pelear(a,b,p)) ¬=obs p
+

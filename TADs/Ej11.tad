@@ -1,0 +1,60 @@
+//Decisiones Tomadas:
+// seRegistra (un producto) es distinto a cuando se compra (pues por ahí registro dos manzanas y pero no tengo registradas
+// las 3 manzanas nuevas que compre recién)
+// dice que se registran las compras de UN producto
+
+TAD producto es ℕat
+TAD stock_mínimo es Nat
+
+TAD Stock
+	
+		Género: Stock
+
+    exporta: 
+		
+		usa:
+		
+		Igualdad Observacional:	();
+		
+		Observadores Básicos:
+				estáRegistrado: producto p × stock s → bool
+				sustituto: producto p × stock s → producto
+				#comprados: stock s × producto p → nat
+				#vendidos: stock s × producto p → nat
+				bajoStockMínimo: 
+			
+		Generadores:
+				registrarProducto: producto p × stock_mínimo s → stock
+				compra: nat c × producto p × stock → stock
+				asignaSustituto: producto p1 × producto p2 × stock → stock
+				venta: nat c x producto p × stock → stock
+		
+		Otras Operaciones:
+			
+			
+		Axiomas:
+				estáTegistrado(p1, registrarProducto(p2,s)) ≡ if p1=p2 then true else estáRegistrado(p1,s) ≡ p1=p2 ∨ estáRegistrado(p1,s)
+				estáTegistrado(p, compra(c,p,s)) ≡ 
+				estáTegistrado(p, asignaSustituto(p1,p2,s)) ≡
+				estáTegistrado(p, venta(c,p,s)) ≡
+			
+				sustituto(registrarProducto(p,s)) ≡ 
+				sustituto(compra(c,p,s)) ≡
+				sustituto(asignaSustituto(p1,p2,s)) ≡
+				sustituto(venta(c,p,s)) ≡
+				
+				#comprados(registrarProducto(p,s)) ≡ 
+				#comprados(compra(c,p,s)) ≡
+				#comprados(asignaSustituto(p1,p2,s)) ≡
+				#comprados(venta(c,p,s)) ≡
+				
+				#vendidos(registrarProducto(p,s)) ≡ 
+				#vendidos(compra(c,p,s)) ≡
+				#vendidos(asignaSustituto(p1,p2,s)) ≡
+				#vendidos(venta(c,p,s)) ≡
+		
+				bajoStockMínimo(registrarProducto(p,s)) ≡ 
+				bajoStockMínimo(compra(c,p,s)) ≡
+				bajoStockMínimo(asignaSustituto(p1,p2,s)) ≡
+				bajoStockMínimo(venta(c,p,s)) ≡
+Fin TAD

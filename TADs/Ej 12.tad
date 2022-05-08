@@ -1,0 +1,59 @@
+TAD turno es Nat
+
+TAD Oca
+		géneros	 Oca
+		
+		observadores básicos
+		#Turno:oca → nat
+		valorDado: turno t × oca o → nat 
+		tablero: oca o → tablero
+		
+		generadores
+		inicio:tablero t → oca
+		avanza: nat d × oca o → oca
+		realizaAcción: baldosa b × turno t × oca o → oca
+
+		Otras Operaciones
+		pasóPorBaldosa?: turno t × baldosa b × oca → bool  { t< #turno(o) ∧ b ≤ #baldosa(Tablero(o))}
+		
+		axiomas
+		#Turno(inicio) ≡ 0
+		#Turno(avanza(d,o)) ≡ 1 + #Turno(o)
+	  #Turno(realizaAcción(b,t,o)) ≡ #Turno(o)	
+		
+		valorDado(t,inicio(a)) ≡ 
+		valorDado(t,) 
+		valorDado(t,) 
+		
+		tablero(inicio(t)) ≡ t
+		tablero(avanza(d,o)) ≡ 
+		tablero(realizaAcción())
+		
+		pasóPorBaldosa?(t1,b,inicio(t)) ≡ false
+		pasóPorBaldosa?(t1,b,avanza(d,o)) ≡ if t1 = #turno(o) then [ if dondeEstá?(t,)] else pasóPorBaldosa(t,b1,o)
+		pasóPorBaldosa?(t,b1,realizaAcción(b2,o)) ≡ if t = #turno(o) then [ if avanza?(b2) then 
+																						    dondeEstá?(t,o) + #casilleros(b2) ≥ b1 else 
+																								dondeEstá?(t,o) - #casilleros(b2) ≥ b1 ] else
+																								pasóPorBaldosa(t,b1,o)
+		
+Fin TAD
+
+
+TAD tablero
+
+Fin TAD
+
+TAD Baldosa
+		generos Baldosa
+		
+		Observadores Básicos
+		#casilleros: baldosa → nat 
+		avanza?: baldosa → bool
+		Generadores
+		baldosa: nat casilleros × bool avanza → baldosa
+		
+		axiomas
+		#casilleros(baldosa(c,a)) ≡ c
+		avanza?(baldosa(c,a)) ≡ a
+		
+Fin TAD

@@ -1,0 +1,68 @@
+TAD fila
+
+    géneros: fila
+
+    exporta: fila, observadores básicos, generadores
+
+    usa: bool, nat
+
+    generadores:
+        abrirVentanilla : → fila
+        llegar : persona p × fila f → fila                                {¬esperando(p, f)} 
+        atender : fila f → fila                                           {¬vacia(f)}
+
+    observadores básicos:
+        longitud : fila → nat
+        posicion : persona p × fila f → nat                               {esperando(p, f)}
+        seColo? : persona p × fila → bool                                 {esperando(p, f)}
+
+    otras operaciones:
+        esperando : persona × fila → bool
+        vacia? : fila → bool
+        retirarse : persona p × fila f → fila                             {esperando(p, f)}
+        colarseAdelanteDe: persona p × persona q × fila f → fila          {esperando(p, f) ∧ ¬esperando(q, f)}
+
+    axiomas:
+        vacia?(f) ≡ longitud(f) =obs 0
+        esperando(p, f) ≡ if vacia?(f) then 
+                            false
+                          else 
+                            if posicion(p, f) =obs 0 then
+                                true
+                            else
+                                esperando(p, atender(f))
+                            fi
+
+        longitud(abrirVentanilla(f)) ≡ 0
+
+        longitud(llegar(p, f)) ≡ longitud(f) + 1 
+        posicion(p1, llegar(p2, f)) ≡ if p1 =obs p2 then longitud(f) else posicion(p1, f)
+        seColo?(p1, llegar(p2, f)) ≡ if p1 =obs p2 then false else seColo?(p1, f)
+
+
+
+        longitud(atender(f)) ≡ longitud(f) - 1
+        posicion(p, atender(f)) ≡ posicion(p, f) - 1
+        seColo?(p, atender(f)) ≡ seColo?(p, f)
+
+        longitud(retirarse(p, f)) ≡ longitud(f) - 1
+        posicion(p1, retirarse(p2, f)) ≡ if posicion(p1, f) < posicion(p2, f) then
+        									posicion(p1, f)
+        								 else
+        								 	posicion(p1, f) - 1
+        								 fi
+        seColo?(p1, retirarse(p2, f)) ≡ seColo(p1, f)
+
+        longitud(colarseAdelanteDe(p, q, f)) ≡ longitud(f) + 1
+        posicion(p1, colarseAdelanteDe(p2, q, f)) ≡ if p1 =obs q then
+        												posicion(p2, f)
+        											else  
+	        											if posicion(p1, f) < posicion(p2, f) then
+				        									posicion(p1, f)
+				        								else
+				        								 	posicion(p1, f) + 1
+				        								fi
+				        							fi
+        seColo?(p1, colarseAdelanteDe(p2, q, f)) ≡ if p1 =obs q then true else seColo?(p1, f) fi
+
+Fin TAD

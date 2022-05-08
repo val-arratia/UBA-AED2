@@ -1,0 +1,32 @@
+TAD polinomio
+
+    géneros: polinomio
+
+    exporta: polinomio, observadores básicos, generadores, esRaiz
+
+    usa: bool, nat
+
+    generadores:
+        Cte : nat → polinomio
+        X : → polinomio
+        _ + _ : polinomio x polinomio → polinomio    // los _ deberian ser · gordos pero no tengo
+        _ ∙ _ : polinomio x polinomio → polinomio 	 // el caracter y queda feo el código
+
+    observadores básicos:
+        evaluar : polinomio x nat → nat
+
+    otras operaciones:
+        esRaiz : polinomio x nat → bool
+
+    axiomas:
+        evaluar(Cte(), n) ≡ Cte
+
+        evaluar(X, n) ≡ n
+
+        evaluar(p₁ + p₂, n) ≡ evaluar(p₁, n) + evaluar(p₂, n)
+
+		evaluar(p₁ ∙ p₂, n) ≡ evaluar(p₁, n) × evaluar(p₂, n)
+
+		esRaiz(p, n) ≡ if evaluar(p,n) =obs 0 then true else false fi  
+
+Fin TAD
